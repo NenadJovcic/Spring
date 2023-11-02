@@ -32,7 +32,7 @@ public class SecurityConfiguration {
             "/v2/api-docs/**",
             "/swagger-resources/**",
             "/api/auth/register",
-            "/api/auth/authenticate"
+            "/api/auth/authenticate",
     };
 
     @Bean
