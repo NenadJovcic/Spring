@@ -1,11 +1,17 @@
 package com.spring.course.service;
 
+import com.spring.course.context.AuthenticationValidator;
 import com.spring.course.entity.FileEntity;
 import com.spring.course.entity.Folder;
+import com.spring.course.entity.User;
 import com.spring.course.exception.ResourceNotFoundException;
+import com.spring.course.exception.UnauthorizedAccessException;
+import com.spring.course.exception.UserNotFoundException;
 import com.spring.course.repository.FileRepository;
 import com.spring.course.repository.FolderRepository;
 import com.spring.course.response.ApiResponse;
+import com.spring.course.response.FileResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -13,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,69 +34,106 @@ public class FileService {
     @Autowired
     private FolderRepository folderRepository;
 
+    @Transactional
     public void uploadFile(MultipartFile file, Long folderId) throws IOException {
+        User user = AuthenticationValidator.getAuthenticatedUser();
+
+
         Folder folder = folderRepository.findById(folderId).orElse(null);
         if (folder == null) {
             throw new IllegalArgumentException("Invalid folder ID.");
+        }
+        if (!folder.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("Unauthorized to Upload to folder with ID: " + folderId);
         }
 
         FileEntity fileEntity = new FileEntity();
         fileEntity.setFileName(file.getOriginalFilename());
         fileEntity.setFileContent(file.getBytes());
         fileEntity.setFolder(folder);
+        fileEntity.setUser(user);
 
         fileRepository.save(fileEntity);
     }
 
-    public ResponseEntity<Resource> downloadFileById(Long id) {
-        try {
-            Optional<FileEntity> optionalFile = fileRepository.findById(id);
+    public FileResponse downloadFileById(Long id) {
+        User user = AuthenticationValidator.getAuthenticatedUser();
+        Optional<FileEntity> optionalFile = fileRepository.findById(id);
 
-            if (optionalFile.isPresent()) {
-                FileEntity fileEntity = optionalFile.get();
-                ByteArrayResource resource = new ByteArrayResource(fileEntity.getFileContent());
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                headers.setContentDispositionFormData("attachment", fileEntity.getFileName());
-
-                return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (optionalFile.isPresent()) {
+            FileEntity fileEntity = optionalFile.get();
+            if (!fileEntity.getUser().getId().equals(user.getId())) {
+                throw new UnauthorizedAccessException("Unauthorized to download file with ID: " + id);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+            return FileResponse.builder()
+                    .fileName(fileEntity.getFileName())
+                    .fileContent(fileEntity.getFileContent())  // Assuming fileEntity.getFileContent() returns a byte array
+                    .build();
+        } else {
+            throw new ResourceNotFoundException("File with ID: " + id + " not found");
+
         }
     }
 
-    public ApiResponse removeFileById(Long id) {
+    public FileResponse removeFileById(Long id) {
+        User user = AuthenticationValidator.getAuthenticatedUser();
+
         Optional<FileEntity> optionalFile = fileRepository.findById(id);
         if (optionalFile.isPresent()) {
+            FileEntity fileEntity = optionalFile.get();
+            // Check if the authenticated user is the owner of the file
+            if (!fileEntity.getUser().getId().equals(user.getId())) {
+                throw new UnauthorizedAccessException("Unauthorized to delete file with ID: " + id);
+            }
+
             fileRepository.deleteById(id);
-            return ApiResponse.builder()
-                    .message("Successfully deleted file with ID:" + id)
+            return FileResponse.builder()
+                    .message("Successfully deleted file with ID: " + id)
                     .build();
         } else {
             throw new ResourceNotFoundException("File not found with ID: " + id);
         }
     }
 
-    public ApiResponse getFileById(Long id) {
+
+    public FileResponse getFileById(Long id) {
+        User user = AuthenticationValidator.getAuthenticatedUser();
         Optional<FileEntity> optionalFile = fileRepository.findById(id);
+
         if (optionalFile.isPresent()) {
-            return ApiResponse.builder()
-                    .message("Successfully found file with ID: " + id)
-                    .data(optionalFile.get())
-                    .build();
+            FileEntity file = optionalFile.get();
+
+            if (file.getUser().getId().equals(user.getId())) {
+                return FileResponse.builder()
+                        .message("Successfully found file with ID: " + id)
+                        .file(file)
+                        .build();
+            } else {
+                throw new UnauthorizedAccessException("You do not have permission to access this file");
+            }
         } else {
             throw new ResourceNotFoundException("File not found with ID: " + id);
         }
     }
 
-    public List<FileEntity> getAllFiles() {
-        return fileRepository.findAll();
+
+    public FileResponse getAllFilesByUser() {
+        User user = AuthenticationValidator.getAuthenticatedUser();
+        if (user == null) {
+            throw new UserNotFoundException("User not found ");
+        }
+        List<FileEntity> files = fileRepository.findByUser(user);
+
+        if (files.isEmpty()) {
+            throw new ResourceNotFoundException("No files found for the user");
+        }
+
+        return FileResponse.builder()
+                .files(files)
+                .build();
     }
+
 }
 
 
