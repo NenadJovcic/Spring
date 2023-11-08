@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@ToString
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -27,6 +27,12 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Folder> folders;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<FileEntity> files;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

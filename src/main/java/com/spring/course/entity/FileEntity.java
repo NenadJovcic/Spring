@@ -15,12 +15,11 @@ public class FileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String fileName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "folder_id")
-    @ToString.Exclude
+    @JsonIgnore
     private Folder folder;
 
     @Lob
@@ -28,4 +27,8 @@ public class FileEntity {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileContent;
 
+    @ManyToOne()
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 }

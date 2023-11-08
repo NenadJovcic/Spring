@@ -27,12 +27,12 @@ public class Folder {
     private String name;
     private LocalDateTime createdDate = LocalDateTime.now();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FileEntity> files;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JsonIgnore
+    @ManyToOne()
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 }
