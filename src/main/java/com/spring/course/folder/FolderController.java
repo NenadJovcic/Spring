@@ -1,17 +1,9 @@
-package com.spring.course.controller;
+package com.spring.course.folder;
 
 
-import com.spring.course.context.AuthenticationValidator;
-import com.spring.course.entity.FileEntity;
-import com.spring.course.entity.Folder;
-import com.spring.course.entity.User;
 import com.spring.course.exception.ResourceNotFoundException;
 import com.spring.course.exception.UnauthorizedAccessException;
-import com.spring.course.repository.FolderRepository;
-import com.spring.course.request.FolderRequest;
-import com.spring.course.response.FolderResponse;
-import com.spring.course.service.FileService;
-import com.spring.course.service.FolderService;
+import com.spring.course.file.FileService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +12,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -40,18 +29,7 @@ public class FolderController {
 
     @PostMapping("/create")
     public ResponseEntity<FolderResponse> createFolder(@Valid @RequestBody FolderRequest folderRequest) {
-        try {
-            FolderResponse response = folderService.createFolder(folderRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (Exception e) {
-            String errorMessage = "Failed to create folder: " + e.getMessage();
-            return ResponseEntity.badRequest().body(
-                    FolderResponse.builder()
-                            .errorOccurred(true)
-                            .message(errorMessage)
-                            .build());
-        }
+            return ResponseEntity.status(HttpStatus.CREATED).body(folderService.createFolder(folderRequest));
     }
 
     @GetMapping("/all")

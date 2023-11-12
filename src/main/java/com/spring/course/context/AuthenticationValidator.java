@@ -1,7 +1,7 @@
 package com.spring.course.context;
 
 
-import com.spring.course.entity.User;
+import com.spring.course.user.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

@@ -1,8 +1,7 @@
-package com.spring.course.response;
+package com.spring.course.folder;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.course.entity.FileEntity;
-import com.spring.course.entity.Folder;
+import com.spring.course.folder.Folder;
 import lombok.*;
 
 import java.util.List;

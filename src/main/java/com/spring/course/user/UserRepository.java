@@ -1,6 +1,6 @@
-package com.spring.course.repository;
+package com.spring.course.user;
 
-import com.spring.course.entity.User;
+import com.spring.course.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
 package com.spring.course.config;
 
-import com.spring.course.repository.UserRepository;
+import com.spring.course.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.spring.course.response;
+package com.spring.course.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

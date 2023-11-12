@@ -1,4 +1,4 @@
-package com.spring.course.request;
+package com.spring.course.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

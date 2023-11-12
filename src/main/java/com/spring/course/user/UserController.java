@@ -1,11 +1,5 @@
-package com.spring.course.controller;
+package com.spring.course.user;
 
-import com.spring.course.entity.User;
-import com.spring.course.repository.UserRepository;
-import com.spring.course.request.AuthenticationRequest;
-import com.spring.course.request.RegisterRequest;
-import com.spring.course.response.AuthenticationResponse;
-import com.spring.course.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,9 +1,6 @@
-package com.spring.course.request;
+package com.spring.course.folder;
 
-import com.spring.course.entity.Folder;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor

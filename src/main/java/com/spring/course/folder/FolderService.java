@@ -1,16 +1,15 @@
-package com.spring.course.service;
+package com.spring.course.folder;
 
 import com.spring.course.context.AuthenticationValidator;
-import com.spring.course.entity.FileEntity;
-import com.spring.course.entity.Folder;
-import com.spring.course.entity.User;
+import com.spring.course.file.FileService;
+import com.spring.course.folder.Folder;
+import com.spring.course.user.User;
 import com.spring.course.exception.ResourceNotFoundException;
 import com.spring.course.exception.UnauthorizedAccessException;
-import com.spring.course.repository.FolderRepository;
-import com.spring.course.request.FolderRequest;
-import com.spring.course.response.FolderResponse;
+import com.spring.course.folder.FolderRepository;
+import com.spring.course.folder.FolderRequest;
+import com.spring.course.folder.FolderResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,14 +26,13 @@ public class FolderService {
     private FileService fileService;
 
 
-    public FolderResponse createFolder(FolderRequest folderRequest) {
+    public FolderResponse createFolder(FolderRequest folderRequest) throws IllegalArgumentException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        if (user == null) {
-            return FolderResponse.builder()
-                    .message("No authenticated user found: ")
-                    .errorOccurred(true)
-                    .build();
+
+        if (folderRequest == null || folderRequest.getName().isEmpty()) {
+            throw new IllegalArgumentException("Invalid folder request for creating a folder. Please include name");
         }
+
         Folder folder = Folder.builder()
                 .name(folderRequest.getName())
                 .createdDate(LocalDateTime.now())
@@ -57,7 +55,8 @@ public class FolderService {
             if (folder.getUser().getId().equals(user.getId())) {
                 folderRepository.deleteById(id);
                 return FolderResponse.builder()
-                        .message("Successfully deleted folder with ID: " + id).build();
+                        .message("Successfully deleted folder with ID: " + id)
+                        .build();
             } else {
                 throw new UnauthorizedAccessException("You do not have permission to delete this folder");
             }

@@ -1,6 +1,8 @@
-package com.spring.course.entity;
+package com.spring.course.file;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.spring.course.folder.Folder;
+import com.spring.course.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 

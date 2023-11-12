@@ -1,10 +1,8 @@
-package com.spring.course.response;
+package com.spring.course.file;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.course.entity.FileEntity;
-import jakarta.annotation.Resource;
+import com.spring.course.file.FileEntity;
 import lombok.*;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 
 import java.util.List;
