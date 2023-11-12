@@ -19,7 +19,7 @@ public class FileEntity {
     private Long id;
     private String fileName;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "folder_id")
     @JsonIgnore
     private Folder folder;
@@ -29,7 +29,7 @@ public class FileEntity {
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileContent;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;

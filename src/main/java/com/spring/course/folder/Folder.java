@@ -30,7 +30,7 @@ public class Folder {
     private LocalDateTime createdDate = LocalDateTime.now();
 
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FileEntity> files;
 
     @ManyToOne()

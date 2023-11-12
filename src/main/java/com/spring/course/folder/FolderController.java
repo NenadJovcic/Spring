@@ -28,28 +28,13 @@ public class FolderController {
     private FolderRepository folderRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<FolderResponse> createFolder(@Valid @RequestBody FolderRequest folderRequest) {
+    public ResponseEntity<FolderResponse> createFolder(@RequestBody FolderRequest folderRequest) {
             return ResponseEntity.status(HttpStatus.CREATED).body(folderService.createFolder(folderRequest));
     }
 
     @GetMapping("/all")
     public ResponseEntity<FolderResponse> getAllFoldersByUser() {
-        try {
             return ResponseEntity.ok(folderService.getAllFoldersByUser());
-
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    FolderResponse.builder()
-                            .message(e.getMessage())
-                            .build());
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    FolderResponse.builder()
-                            .message("Internal Server Error")
-                            .build());
-        }
     }
 
     @DeleteMapping("/{id}")

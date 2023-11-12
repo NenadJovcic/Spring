@@ -9,6 +9,7 @@ import com.spring.course.exception.UnauthorizedAccessException;
 import com.spring.course.folder.FolderRepository;
 import com.spring.course.folder.FolderRequest;
 import com.spring.course.folder.FolderResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class FolderService {
     public FolderResponse createFolder(FolderRequest folderRequest) throws IllegalArgumentException {
         User user = AuthenticationValidator.getAuthenticatedUser();
 
-        if (folderRequest == null || folderRequest.getName().isEmpty()) {
+        if (folderRequest == null || folderRequest.getName() == null || folderRequest.getName().isEmpty()) {
             throw new IllegalArgumentException("Invalid folder request for creating a folder. Please include name");
         }
 
