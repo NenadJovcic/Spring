@@ -25,7 +25,7 @@ public class SecurityConfiguration {
     // Documentation for API
     // http://localhost:8080/swagger-ui/index.html
 
-    private static final String[] AUTH_WHITELIST = {
+    public static final String[] PERMITTED_ROUTES = {
             "/api/v1/orders/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -42,7 +42,7 @@ public class SecurityConfiguration {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity
                 .authorizeHttpRequests(rQ -> {
-                    rQ.requestMatchers(AUTH_WHITELIST).permitAll();
+                    rQ.requestMatchers(PERMITTED_ROUTES).permitAll();
                     rQ.anyRequest().authenticated();
                 });
         httpSecurity.cors(Customizer.withDefaults());

@@ -35,6 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String userEmail;
 
+        if (isPermittedRoute(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Check if the header is missing or doesn't start with "Bearer ".
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             handleException(response, "Missing or incorrect Authorization header. No Bearer token found.", HttpServletResponse.SC_UNAUTHORIZED);
@@ -77,5 +82,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(httpStatus);
         response.getWriter().write("Authentication failed: " + errorMessage);
         response.getWriter().flush();
+    }
+
+    private boolean isPermittedRoute(String requestURI) {
+        for (String permittedRoute : SecurityConfiguration.PERMITTED_ROUTES) {
+            if (requestURI.equals(permittedRoute) || requestURI.startsWith(permittedRoute + "/")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
