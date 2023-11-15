@@ -1,6 +1,7 @@
 package com.spring.course.file;
 
 import com.spring.course.context.AuthenticationValidator;
+import com.spring.course.exception.MissingFileException;
 import com.spring.course.file.FileEntity;
 import com.spring.course.folder.Folder;
 import com.spring.course.user.User;
@@ -13,6 +14,7 @@ import com.spring.course.file.FileResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,16 +29,21 @@ public class FileService {
     private FolderRepository folderRepository;
 
     @Transactional
-    public void uploadFile(MultipartFile file, Long folderId) throws IOException {
+    public void uploadFile(MultipartFile file, Long folderId) throws IllegalArgumentException, UnauthorizedAccessException, IOException, MissingFileException {
         User user = AuthenticationValidator.getAuthenticatedUser();
 
         Folder folder = folderRepository.findById(folderId).orElse(null);
         if (folder == null) {
             throw new IllegalArgumentException("Invalid folder ID.");
         }
+        if (file == null || file.isEmpty() || file.getSize() == 0) {
+            throw new MissingFileException("File is null or empty. Please provide a valid file.");
+        }
+
         if (!folder.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedAccessException("Unauthorized to Upload to folder with ID: " + folderId);
         }
+
 
         FileEntity fileEntity = new FileEntity();
         fileEntity.setFileName(file.getOriginalFilename());
@@ -53,13 +60,12 @@ public class FileService {
 
         if (optionalFile.isPresent()) {
             FileEntity fileEntity = optionalFile.get();
+            // Check if the authenticated user is the owner of the file
             if (!fileEntity.getUser().getId().equals(user.getId())) {
                 throw new UnauthorizedAccessException("Unauthorized to download file with ID: " + id);
             }
 
-            return FileResponse.builder()
-                    .fileName(fileEntity.getFileName())
-                    .fileContent(fileEntity.getFileContent())  // Assuming fileEntity.getFileContent() returns a byte array
+            return FileResponse.builder().fileName(fileEntity.getFileName()).fileContent(fileEntity.getFileContent())  // Assuming fileEntity.getFileContent() returns a byte array
                     .build();
         } else {
             throw new ResourceNotFoundException("File with ID: " + id + " not found");
@@ -79,9 +85,7 @@ public class FileService {
             }
 
             fileRepository.deleteById(id);
-            return FileResponse.builder()
-                    .message("Successfully deleted file with ID: " + id)
-                    .build();
+            return FileResponse.builder().message("Successfully deleted file with ID: " + id).build();
         } else {
             throw new ResourceNotFoundException("File not found with ID: " + id);
         }
@@ -94,12 +98,9 @@ public class FileService {
 
         if (optionalFile.isPresent()) {
             FileEntity file = optionalFile.get();
-
+            // Check if the authenticated user is the owner of the file
             if (file.getUser().getId().equals(user.getId())) {
-                return FileResponse.builder()
-                        .message("Successfully found file with ID: " + id)
-                        .file(file)
-                        .build();
+                return FileResponse.builder().message("Successfully found file with ID: " + id).file(file).build();
             } else {
                 throw new UnauthorizedAccessException("You do not have permission to access this file");
             }
@@ -120,9 +121,7 @@ public class FileService {
             throw new ResourceNotFoundException("No files found for the user");
         }
 
-        return FileResponse.builder()
-                .files(files)
-                .build();
+        return FileResponse.builder().files(files).build();
     }
 
 }

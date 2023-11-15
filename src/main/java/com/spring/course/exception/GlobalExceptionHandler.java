@@ -4,6 +4,7 @@ package com.spring.course.exception;
 import com.spring.course.utils.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -36,6 +37,24 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(MissingFileException.class)
+    public ResponseEntity<ApiResponse> handleIllegalArgumentException(MissingFileException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.builder()
+                        .message(e.getMessage())
+                        .build());
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse> handleMissingParams(MissingServletRequestParameterException ex) {
+        String name = ex.getParameterName();
+        System.out.println(name + " parameter is missing");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.builder()
+                        .message(name + " parameter is missing")
+                        .build());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -46,7 +65,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IOException.class)
     public ResponseEntity<ApiResponse> handleIoException(IOException e) {
-        System.out.println(e.getMessage());
+        System.out.println(e.getMessage() + "IOException");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.builder()
                         .message("Failed to upload/download the file")
@@ -55,7 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception e) {
-        System.out.println(e.getMessage());
+        System.out.println(e.getMessage() + "Exception");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.builder()
                         .message("Internal Server Error")

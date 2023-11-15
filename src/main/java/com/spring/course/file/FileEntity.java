@@ -9,7 +9,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "folder")
 @Builder
 @Entity
 @Table(name = "file_entity")

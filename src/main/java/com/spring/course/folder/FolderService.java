@@ -11,6 +11,7 @@ import com.spring.course.folder.FolderRequest;
 import com.spring.course.folder.FolderResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -77,6 +78,19 @@ public class FolderService {
 
         return FolderResponse.builder()
                 .folderList(folders)
+                .build();
+    }
+
+    public FolderResponse getFolderById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException {
+        User user = AuthenticationValidator.getAuthenticatedUser();
+        Folder folder = folderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Folder not found with ID: " + id));
+
+
+        if (!folder.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("Unauthorized to access folder with ID: " + id);
+        }
+        return FolderResponse.builder()
+                .folder(folder)
                 .build();
     }
 }

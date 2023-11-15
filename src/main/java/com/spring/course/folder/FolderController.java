@@ -29,36 +29,21 @@ public class FolderController {
 
     @PostMapping("/create")
     public ResponseEntity<FolderResponse> createFolder(@RequestBody FolderRequest folderRequest) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(folderService.createFolder(folderRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(folderService.createFolder(folderRequest));
     }
 
     @GetMapping("/all")
     public ResponseEntity<FolderResponse> getAllFoldersByUser() {
-            return ResponseEntity.ok(folderService.getAllFoldersByUser());
+        return ResponseEntity.ok(folderService.getAllFoldersByUser());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FolderResponse> getFolderById(@PathVariable Long id) {
+        return ResponseEntity.ok(folderService.getFolderById(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<FolderResponse> deleteFolderById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(folderService.deleteFolderById(id));
-
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    FolderResponse.builder()
-                            .message(e.getMessage())
-                            .build());
-
-        } catch (UnauthorizedAccessException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    FolderResponse.builder()
-                            .message(e.getMessage())
-                            .build());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    FolderResponse.builder()
-                            .message("Internal Server Error")
-                            .build());
-        }
+        return ResponseEntity.ok(folderService.deleteFolderById(id));
     }
 }

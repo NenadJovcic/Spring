@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Builder
-@ToString
+@ToString(exclude = "folders")
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
