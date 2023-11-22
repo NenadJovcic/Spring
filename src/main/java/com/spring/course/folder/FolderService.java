@@ -2,16 +2,10 @@ package com.spring.course.folder;
 
 import com.spring.course.context.AuthenticationValidator;
 import com.spring.course.file.FileService;
-import com.spring.course.folder.Folder;
 import com.spring.course.user.User;
 import com.spring.course.exception.ResourceNotFoundException;
 import com.spring.course.exception.UnauthorizedAccessException;
-import com.spring.course.folder.FolderRepository;
-import com.spring.course.folder.FolderRequest;
-import com.spring.course.folder.FolderResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
