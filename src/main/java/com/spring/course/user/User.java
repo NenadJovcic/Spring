@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Entity class representing a user in the system.
+ */
 @Data
 @Builder
 @ToString(exclude = "folders")
@@ -27,12 +30,20 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
+    /**
+     * The role assigned to the user (e.g., ROLE_USER, ROLE_ADMIN).
+     */
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    /**
+     * List of folders associated with the user.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folders;
-
+    /**
+     * List of files associated with the user.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileEntity> files;
 

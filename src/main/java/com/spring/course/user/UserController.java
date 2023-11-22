@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+/**
+ * Controller class handling user-related operations such as registration and authentication.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
@@ -16,7 +19,12 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param id The ID of the user to retrieve.
+     * @return ResponseEntity with the user information and HTTP status OK, or NOT_FOUND if the user is not found.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -24,6 +32,12 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Registers a new user.
+     *
+     * @param request The registration request containing user details.
+     * @return ResponseEntity with the authentication response and HTTP status OK, or BAD_REQUEST if an error occurred.
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {
         AuthenticationResponse registrationResponse = userService.register(request);
@@ -32,6 +46,13 @@ public class UserController {
         return ResponseEntity.ok(registrationResponse);
     }
 
+    /**
+     * Authenticates a user.
+     *
+     * @param request  The authentication request containing user credentials.
+     * @param response The HTTP servlet response.
+     * @return ResponseEntity with the authentication response and HTTP status OK.
+     */
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
         return ResponseEntity.ok(userService.authenticate(request, response));

@@ -10,11 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-// All logik hanteras i service!
 @Service
 public class UserService {
-
-
     @Autowired
     public UserRepository userRepository;
     @Autowired
@@ -24,7 +21,12 @@ public class UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-
+    /**
+     * Registers a new user.
+     *
+     * @param request The registration request containing user details.
+     * @return AuthenticationResponse indicating the registration status and a JWT token.
+     */
     public AuthenticationResponse register(RegisterRequest request) {
         // Check if a user with the same email already exists
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -52,6 +54,13 @@ public class UserService {
         }
     }
 
+    /**
+     * Authenticates a user.
+     *
+     * @param request  The authentication request containing user credentials.
+     * @param response The HTTP servlet response.
+     * @return AuthenticationResponse indicating the authentication status and a JWT token.
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
