@@ -19,15 +19,11 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-
         config.addAllowedOriginPattern("*");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
-
         source.registerCorsConfiguration("/**", config);
-
-        System.out.println("Cors filter configured");
 
         return new CorsFilter(source);
     }

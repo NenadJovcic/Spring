@@ -14,6 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
+/**
+ * Configuration class for handling security-related configurations.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -21,10 +24,6 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
-
-    // Documentation for API
-    // http://localhost:8080/swagger-ui/index.html
-
     public static final String[] PERMITTED_ROUTES = {
             "/api/v1/orders/**",
             "/v3/api-docs/**",
@@ -35,10 +34,15 @@ public class SecurityConfiguration {
             "/api/auth/authenticate",
     };
 
+    /**
+     * Defines the security filter chain.
+     *
+     * @param httpSecurity The HttpSecurity object to configure security settings.
+     * @return The configured SecurityFilterChain.
+     * @throws Exception If an exception occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
-
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity
                 .authorizeHttpRequests(rQ -> {
