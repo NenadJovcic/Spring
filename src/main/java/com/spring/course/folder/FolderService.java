@@ -28,6 +28,13 @@ public class FolderService {
     private FileService fileService;
 
 
+    /**
+     * Creates a folder based on the user's request.
+     *
+     * @param folderRequest A request to create a folder.
+     * @return A response containing the created folder and a message.
+     * @throws IllegalArgumentException Thrown if the request is invalid.
+     */
     public FolderResponse createFolder(FolderRequest folderRequest) throws IllegalArgumentException {
         User user = AuthenticationValidator.getAuthenticatedUser();
 
@@ -48,6 +55,14 @@ public class FolderService {
                 .build();
     }
 
+    /**
+     * Deletes a folder based on ID, provided the user has the authorization.
+     *
+     * @param id ID of the folder to be deleted.
+     * @return A response containing a message that the folder has been deleted.
+     * @throws UnauthorizedAccessException Thrown if the user does not have permission to delete the folder.
+     * @throws ResourceNotFoundException   Thrown if the folder with the given ID is not found.
+     */
     public FolderResponse deleteFolderById(Long id) {
         User user = AuthenticationValidator.getAuthenticatedUser();
         Optional<Folder> folderOptional = folderRepository.findById(id);
@@ -67,7 +82,12 @@ public class FolderService {
         }
     }
 
-
+    /**
+     * Gets all folders belonging to the authenticated user.
+     *
+     * @return A response containing a list of folders.
+     * @throws ResourceNotFoundException Thrown if no folders are found for the user.
+     */
     public FolderResponse getAllFoldersByUser() {
         User user = AuthenticationValidator.getAuthenticatedUser();
         List<Folder> folders = folderRepository.findByUser(user);
@@ -81,6 +101,14 @@ public class FolderService {
                 .build();
     }
 
+    /**
+     * Gets a folder by ID, provided the user has the authorization.
+     *
+     * @param id ID of the folder to be retrieved.
+     * @return A response containing the requested folder.
+     * @throws ResourceNotFoundException   Thrown if the folder with the given ID is not found.
+     * @throws UnauthorizedAccessException Thrown if the user does not have permission to access the folder.
+     */
     public FolderResponse getFolderById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException {
         User user = AuthenticationValidator.getAuthenticatedUser();
         Folder folder = folderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Folder not found with ID: " + id));
