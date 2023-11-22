@@ -2,19 +2,15 @@ package com.spring.course.file;
 
 import com.spring.course.context.AuthenticationValidator;
 import com.spring.course.exception.MissingFileException;
-import com.spring.course.file.FileEntity;
 import com.spring.course.folder.Folder;
 import com.spring.course.user.User;
 import com.spring.course.exception.ResourceNotFoundException;
 import com.spring.course.exception.UnauthorizedAccessException;
 import com.spring.course.exception.UserNotFoundException;
-import com.spring.course.file.FileRepository;
 import com.spring.course.folder.FolderRepository;
-import com.spring.course.file.FileResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,6 +24,16 @@ public class FileService {
     @Autowired
     private FolderRepository folderRepository;
 
+    /**
+     * Uploads a file to the specified folder.
+     *
+     * @param file     The file to upload.
+     * @param folderId The ID of the folder where the file will be uploaded.
+     * @throws IllegalArgumentException    If the folder ID is invalid.
+     * @throws UnauthorizedAccessException If the user is unauthorized to upload to the folder.
+     * @throws IOException                 If an IO error occurs during file processing.
+     * @throws MissingFileException        If the file is null, empty, or has no content.
+     */
     @Transactional
     public void uploadFile(MultipartFile file, Long folderId) throws IllegalArgumentException, UnauthorizedAccessException, IOException, MissingFileException {
         User user = AuthenticationValidator.getAuthenticatedUser();
@@ -44,7 +50,6 @@ public class FileService {
             throw new UnauthorizedAccessException("Unauthorized to Upload to folder with ID: " + folderId);
         }
 
-
         FileEntity fileEntity = new FileEntity();
         fileEntity.setFileName(file.getOriginalFilename());
         fileEntity.setFileContent(file.getBytes());
@@ -54,6 +59,14 @@ public class FileService {
         fileRepository.save(fileEntity);
     }
 
+    /**
+     * Downloads a file by its ID.
+     *
+     * @param id The ID of the file to download.
+     * @return FileResponse containing the file information.
+     * @throws ResourceNotFoundException   If the file with the specified ID is not found.
+     * @throws UnauthorizedAccessException If the user is unauthorized to download the file.
+     */
     public FileResponse downloadFileById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException {
         User user = AuthenticationValidator.getAuthenticatedUser();
         Optional<FileEntity> optionalFile = fileRepository.findById(id);
@@ -73,6 +86,14 @@ public class FileService {
         }
     }
 
+    /**
+     * Removes a file by its ID.
+     *
+     * @param id The ID of the file to remove.
+     * @return FileResponse indicating the deletion success.
+     * @throws ResourceNotFoundException   If the file with the specified ID is not found.
+     * @throws UnauthorizedAccessException If the user is unauthorized to delete the file.
+     */
     public FileResponse removeFileById(Long id) {
         User user = AuthenticationValidator.getAuthenticatedUser();
 
@@ -91,7 +112,14 @@ public class FileService {
         }
     }
 
-
+    /**
+     * Retrieves a file by its ID.
+     *
+     * @param id The ID of the file to retrieve.
+     * @return FileResponse containing the file information.
+     * @throws UnauthorizedAccessException If the user is unauthorized to access the file.
+     * @throws ResourceNotFoundException   If the file with the specified ID is not found.
+     */
     public FileResponse getFileById(Long id) throws UnauthorizedAccessException, ResourceNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
         Optional<FileEntity> optionalFile = fileRepository.findById(id);
@@ -109,7 +137,13 @@ public class FileService {
         }
     }
 
-
+    /**
+     * Retrieves all files associated with the authenticated user.
+     *
+     * @return FileResponse containing the list of files.
+     * @throws UserNotFoundException     If the authenticated user is not found.
+     * @throws ResourceNotFoundException If no files are found for the user.
+     */
     public FileResponse getAllFilesByUser() throws UserNotFoundException, ResourceNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
         if (user == null) {

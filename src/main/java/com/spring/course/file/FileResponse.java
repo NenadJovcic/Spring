@@ -1,12 +1,13 @@
 package com.spring.course.file;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.course.file.FileEntity;
 import lombok.*;
 import org.springframework.http.HttpHeaders;
-
 import java.util.List;
 
+/**
+ * Data Transfer Object (DTO) for representing file-related responses.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
