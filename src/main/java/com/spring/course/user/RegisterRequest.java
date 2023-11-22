@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request class for user registration containing user details.
+ */
 @Data
 @Builder
 @NoArgsConstructor
