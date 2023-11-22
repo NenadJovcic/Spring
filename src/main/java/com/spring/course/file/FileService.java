@@ -11,7 +11,9 @@ import com.spring.course.folder.FolderRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,11 +31,11 @@ public class FileService {
      *
      * @param file     The file to upload.
      * @param folderId The ID of the folder where the file will be uploaded.
-     * @throws IllegalArgumentException    If the folder ID is invalid.
-     * @throws UnauthorizedAccessException If the user is unauthorized to upload to the folder.
-     * @throws IOException                 If an IO error occurs during file processing.
-     * @throws MissingFileException        If the file is null, empty, or has no content.
-     * @throws UserNotFoundException       If the authenticated user is not found.
+     * @throws IllegalArgumentException           If the folder ID is invalid.
+     * @throws UnauthorizedAccessException        If the user is unauthorized to upload to the folder.
+     * @throws IOException                        If an IO error occurs during file processing.
+     * @throws MissingFileException               If the file is null, empty, or has no content.
+     * @throws UserNotFoundException              If the authenticated user is not found.
      */
     @Transactional
     public void uploadFile(MultipartFile file, Long folderId) throws IllegalArgumentException,
@@ -46,6 +48,7 @@ public class FileService {
         if (folderId == null) {
             throw new IllegalArgumentException("Folder ID cannot be null, please include in request");
         }
+
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new ResourceNotFoundException("File with ID: " + folderId + " not found"));
 
@@ -57,12 +60,12 @@ public class FileService {
             throw new UnauthorizedAccessException("Unauthorized to Upload to folder with ID: " + folderId);
         }
 
-        FileEntity fileEntity = new FileEntity();
-        fileEntity.setFileName(file.getOriginalFilename());
-        fileEntity.setFileContent(file.getBytes());
-        fileEntity.setFolder(folder);
-        fileEntity.setUser(user);
-
+        FileEntity fileEntity = FileEntity.builder()
+                .fileName(file.getOriginalFilename())
+                .fileContent(file.getBytes())
+                .folder(folder)
+                .user(user)
+                .build();
         fileRepository.save(fileEntity);
     }
 

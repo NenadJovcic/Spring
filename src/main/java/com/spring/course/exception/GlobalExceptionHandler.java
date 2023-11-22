@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.io.IOException;
 
@@ -93,16 +95,46 @@ public class GlobalExceptionHandler {
     /**
      * Handles MissingServletRequestParameterException and returns a response with a 400 status.
      *
-     * @param ex The MissingServletRequestParameterException instance.
+     * @param e The MissingServletRequestParameterException instance.
      * @return ResponseEntity with a ApiResponse containing the error message.
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiResponse> handleMissingParams(MissingServletRequestParameterException ex) {
-        String name = ex.getParameterName();
+    public ResponseEntity<ApiResponse> handleMissingParams(MissingServletRequestParameterException e) {
+        String name = e.getParameterName();
         System.out.println(name + " parameter is missing");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiResponse.builder()
                         .message(name + " parameter is missing")
+                        .build());
+    }
+
+    /**
+     * Handles MissingServletRequestParameterException and returns a response with a 400 status.
+     *
+     * @param e The MissingServletRequestParameterException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+        String name = e.getRequestPartName();
+        System.out.println(name + " requestPart is missing");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.builder()
+                        .message(name + " requestPart is missing")
+                        .build());
+    }
+
+    /**
+     * Handles MultipartException and returns a response with a 400 status.
+     *
+     * @param e The MultipartException instance.
+     * @return ResponseEntity with a ApiResponse containing custom error message.
+     */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiResponse> handleMultiPartException(MultipartException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.builder()
+                        .message("Invalid request for uploading a file. Please provide a valid file and include the file and folderId in the request")
                         .build());
     }
 
@@ -143,7 +175,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception e) {
-        System.out.println(e.getMessage() + "Exception");
+        System.out.println(e.getMessage() + " Exception.class");
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiResponse.builder()
                         .message("Internal Server Error")
