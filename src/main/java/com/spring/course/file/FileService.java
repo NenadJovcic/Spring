@@ -41,6 +41,7 @@ public class FileService {
             IOException,
             MissingFileException,
             UserNotFoundException {
+
         User user = AuthenticationValidator.getAuthenticatedUser();
         if (folderId == null) {
             throw new IllegalArgumentException("Folder ID cannot be null, please include in request");

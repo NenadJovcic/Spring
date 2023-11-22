@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 @ToString
 public class FolderRequest {
-    @NotNull
+    @NotNull(message = "Name is required and cannot be null")
     private String name;
 }
