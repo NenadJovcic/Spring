@@ -1,7 +1,6 @@
 package com.spring.course.folder;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.spring.course.folder.Folder;
 import lombok.*;
 
 import java.util.List;
