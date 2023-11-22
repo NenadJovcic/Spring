@@ -57,23 +57,19 @@ public class FolderService {
      * @throws UnauthorizedAccessException Thrown if the user does not have permission to delete the folder.
      * @throws ResourceNotFoundException   Thrown if the folder with the given ID is not found.
      */
-    public FolderResponse deleteFolderById(Long id) {
+    public FolderResponse deleteFolderById(Long id) throws UnauthorizedAccessException, ResourceNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        Optional<Folder> folderOptional = folderRepository.findById(id);
+        Folder folder = folderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Folder not found with id: " + id));
 
-        if (folderOptional.isPresent()) {
-            Folder folder = folderOptional.get();
-            if (folder.getUser().getId().equals(user.getId())) {
-                folderRepository.deleteById(id);
-                return FolderResponse.builder()
-                        .message("Successfully deleted folder with ID: " + id)
-                        .build();
-            } else {
-                throw new UnauthorizedAccessException("You do not have permission to delete this folder");
-            }
-        } else {
-            throw new ResourceNotFoundException("Folder not found with id: " + id);
+        if (!folder.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("You do not have permission to delete this folder");
         }
+
+        folderRepository.deleteById(id);
+        return FolderResponse.builder()
+                .message("Successfully deleted folder with ID: " + id)
+                .build();
     }
 
     /**
@@ -82,7 +78,7 @@ public class FolderService {
      * @return A response containing a list of folders.
      * @throws ResourceNotFoundException Thrown if no folders are found for the user.
      */
-    public FolderResponse getAllFoldersByUser() {
+    public FolderResponse getAllFoldersByUser() throws ResourceNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
         List<Folder> folders = folderRepository.findByUser(user);
 
@@ -105,8 +101,8 @@ public class FolderService {
      */
     public FolderResponse getFolderById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        Folder folder = folderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Folder not found with ID: " + id));
-
+        Folder folder = folderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Folder not found with ID: " + id));
 
         if (!folder.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedAccessException("Unauthorized to access folder with ID: " + id);
