@@ -36,7 +36,6 @@ public class FileController {
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("folderId") Long folderId) throws IOException {
         fileService.uploadFile(file, folderId);
         return new ResponseEntity<>("File uploaded successfully!", HttpStatus.OK);
-
     }
 
     /**
@@ -47,7 +46,6 @@ public class FileController {
      */
     @GetMapping("/download/{id}")
     public ResponseEntity<?> downloadFileById(@PathVariable Long id) {
-
         FileResponse downloadFileResponse = fileService.downloadFileById(id);
         ByteArrayResource resource = new ByteArrayResource(downloadFileResponse.getFileContent());
 

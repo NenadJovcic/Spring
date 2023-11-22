@@ -33,15 +33,21 @@ public class FileService {
      * @throws UnauthorizedAccessException If the user is unauthorized to upload to the folder.
      * @throws IOException                 If an IO error occurs during file processing.
      * @throws MissingFileException        If the file is null, empty, or has no content.
+     * @throws UserNotFoundException       If the authenticated user is not found.
      */
     @Transactional
-    public void uploadFile(MultipartFile file, Long folderId) throws IllegalArgumentException, UnauthorizedAccessException, IOException, MissingFileException {
+    public void uploadFile(MultipartFile file, Long folderId) throws IllegalArgumentException,
+            UnauthorizedAccessException,
+            IOException,
+            MissingFileException,
+            UserNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-
-        Folder folder = folderRepository.findById(folderId).orElse(null);
-        if (folder == null) {
-            throw new IllegalArgumentException("Invalid folder ID.");
+        if (folderId == null) {
+            throw new IllegalArgumentException("Folder ID cannot be null, please include in request");
         }
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new ResourceNotFoundException("File with ID: " + folderId + " not found"));
+
         if (file == null || file.isEmpty() || file.getSize() == 0) {
             throw new MissingFileException("File is null or empty. Please provide a valid file.");
         }
@@ -66,25 +72,23 @@ public class FileService {
      * @return FileResponse containing the file information.
      * @throws ResourceNotFoundException   If the file with the specified ID is not found.
      * @throws UnauthorizedAccessException If the user is unauthorized to download the file.
+     * @throws UserNotFoundException       If the authenticated user is not found.
      */
-    public FileResponse downloadFileById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException {
+    public FileResponse downloadFileById(Long id) throws ResourceNotFoundException, UnauthorizedAccessException, UserNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        Optional<FileEntity> optionalFile = fileRepository.findById(id);
+        FileEntity file = fileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("File with ID: " + id + " not found"));
 
-        if (optionalFile.isPresent()) {
-            FileEntity fileEntity = optionalFile.get();
-            // Check if the authenticated user is the owner of the file
-            if (!fileEntity.getUser().getId().equals(user.getId())) {
-                throw new UnauthorizedAccessException("Unauthorized to download file with ID: " + id);
-            }
-
-            return FileResponse.builder().fileName(fileEntity.getFileName()).fileContent(fileEntity.getFileContent())  // Assuming fileEntity.getFileContent() returns a byte array
-                    .build();
-        } else {
-            throw new ResourceNotFoundException("File with ID: " + id + " not found");
-
+        if (!file.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("Unauthorized to download file with ID: " + id);
         }
+
+        return FileResponse.builder()
+                .fileName(file.getFileName())
+                .fileContent(file.getFileContent())
+                .build();
     }
+
 
     /**
      * Removes a file by its ID.
@@ -93,23 +97,20 @@ public class FileService {
      * @return FileResponse indicating the deletion success.
      * @throws ResourceNotFoundException   If the file with the specified ID is not found.
      * @throws UnauthorizedAccessException If the user is unauthorized to delete the file.
+     * @throws UserNotFoundException       If the authenticated user is not found.
      */
-    public FileResponse removeFileById(Long id) {
+    public FileResponse removeFileById(Long id) throws UnauthorizedAccessException, ResourceNotFoundException, UserNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
 
-        Optional<FileEntity> optionalFile = fileRepository.findById(id);
-        if (optionalFile.isPresent()) {
-            FileEntity fileEntity = optionalFile.get();
-            // Check if the authenticated user is the owner of the file
-            if (!fileEntity.getUser().getId().equals(user.getId())) {
-                throw new UnauthorizedAccessException("Unauthorized to delete file with ID: " + id);
-            }
+        FileEntity file = fileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found with ID: " + id));
 
-            fileRepository.deleteById(id);
-            return FileResponse.builder().message("Successfully deleted file with ID: " + id).build();
-        } else {
-            throw new ResourceNotFoundException("File not found with ID: " + id);
+        if (!file.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("Unauthorized to delete file with ID: " + id);
         }
+
+        fileRepository.deleteById(id);
+        return FileResponse.builder().message("Successfully deleted file with ID: " + id).build();
     }
 
     /**
@@ -119,22 +120,19 @@ public class FileService {
      * @return FileResponse containing the file information.
      * @throws UnauthorizedAccessException If the user is unauthorized to access the file.
      * @throws ResourceNotFoundException   If the file with the specified ID is not found.
+     * @throws UserNotFoundException       If the authenticated user is not found.
      */
-    public FileResponse getFileById(Long id) throws UnauthorizedAccessException, ResourceNotFoundException {
+    public FileResponse getFileById(Long id) throws UnauthorizedAccessException, ResourceNotFoundException, UserNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        Optional<FileEntity> optionalFile = fileRepository.findById(id);
+        FileEntity file = fileRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found with ID: " + id));
 
-        if (optionalFile.isPresent()) {
-            FileEntity file = optionalFile.get();
-            // Check if the authenticated user is the owner of the file
-            if (file.getUser().getId().equals(user.getId())) {
-                return FileResponse.builder().message("Successfully found file with ID: " + id).file(file).build();
-            } else {
-                throw new UnauthorizedAccessException("You do not have permission to access this file");
-            }
-        } else {
-            throw new ResourceNotFoundException("File not found with ID: " + id);
+        // Check if the authenticated user is the owner of the file
+        if (!file.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException("You do not have permission to access file with ID: " + id);
         }
+
+        return FileResponse.builder().message("Successfully found file with ID: " + id).file(file).build();
     }
 
     /**
@@ -146,18 +144,12 @@ public class FileService {
      */
     public FileResponse getAllFilesByUser() throws UserNotFoundException, ResourceNotFoundException {
         User user = AuthenticationValidator.getAuthenticatedUser();
-        if (user == null) {
-            throw new UserNotFoundException("User not found ");
-        }
-        List<FileEntity> files = fileRepository.findByUser(user);
 
-        if (files.isEmpty()) {
-            throw new ResourceNotFoundException("No files found for the user");
-        }
+        List<FileEntity> files = Optional.ofNullable(fileRepository.findByUser(user))
+                .orElseThrow(() -> new ResourceNotFoundException("No files found for the user"));
 
         return FileResponse.builder().files(files).build();
     }
-
 }
 
 
