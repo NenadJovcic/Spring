@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * A generic API response class representing the result of an API operation.
+ * This class is commonly used for responses in the global exception handler.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

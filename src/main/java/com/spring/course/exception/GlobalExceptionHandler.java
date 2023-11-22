@@ -10,9 +10,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.IOException;
 
-@ControllerAdvice()
+/**
+ * Global exception handler for handling various exceptions and providing consistent API responses.
+ */
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles ResourceNotFoundException and returns a response with a 404 status.
+     *
+     * @param e The ResourceNotFoundException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -21,6 +30,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles UnauthorizedAccessException and returns a response with a 401 status.
+     *
+     * @param e The UnauthorizedAccessException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<ApiResponse> handleUnauthorizedAccessException(UnauthorizedAccessException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -29,6 +44,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles UserNotFoundException and returns a response with a 404 status.
+     *
+     * @param e The UserNotFoundException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse> handleUserNotFoundException(UserNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -37,6 +58,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles MissingFileException and returns a response with a 400 status.
+     *
+     * @param e The MissingFileException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(MissingFileException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgumentException(MissingFileException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -45,6 +72,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles MissingServletRequestParameterException and returns a response with a 400 status.
+     *
+     * @param ex The MissingServletRequestParameterException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse> handleMissingParams(MissingServletRequestParameterException ex) {
         String name = ex.getParameterName();
@@ -55,6 +88,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles IllegalArgumentException and returns a response with a 400 status.
+     *
+     * @param e The IllegalArgumentException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -63,6 +102,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles IOException and returns a response with a 500 status.
+     *
+     * @param e The IOException instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(IOException.class)
     public ResponseEntity<ApiResponse> handleIoException(IOException e) {
         System.out.println(e.getMessage() + "IOException");
@@ -72,6 +117,12 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Handles generic Exception and returns a response with a 500 status.
+     *
+     * @param e The generic Exception instance.
+     * @return ResponseEntity with a ApiResponse containing the error message.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception e) {
         System.out.println(e.getMessage() + "Exception");
